@@ -20,21 +20,17 @@ UInputDevice udev = {
 	.fd = -1
 };
 
-int keyboard_fd = -1;
-int uinput_fd = 0;
-char keyboard_ev_name[10] = { 0 };
-
 int main(int argc, char** argv) {
 	scan_input_devices(&kdev, &tdev);
 
-	if (keyboard_fd < 0) {
+	if (kdev.fd < 0) {
 		printf("Failed to find keyboard device\n");
 		return(1);
 	}
 
 	uinput_init(&udev);
 
-	if (uinput_fd < 0) {
+	if (udev.fd < 0) {
 		printf("Failed to create virtual keyboard\n");
 		return 1;
 	}
