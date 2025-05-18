@@ -3,14 +3,15 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <croskbd.h>
 
-int uinput_init(void) {
+void uinput_init(UInputDevice *udev) {
 	struct uinput_setup usetup;
 
 	int fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
 	if (fd < 0) {
 		perror("Failed to open uinput");
-		return -1;
+		return;
 	}
 
 	ioctl(fd, UI_SET_EVBIT, EV_REP);
@@ -28,5 +29,5 @@ int uinput_init(void) {
 	ioctl(fd, UI_DEV_SETUP, &usetup);
 	ioctl(fd, UI_DEV_CREATE);
 
-	return fd;
+	udev->fd = fd;
 }

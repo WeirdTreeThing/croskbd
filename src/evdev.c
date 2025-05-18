@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <croskbd.h>
 
-static void check_input_dev(char* event) {
+static void check_input_dev(char* event, KeyboardDevice *kdev, TabletSwitchDevice *tdev) {
     char path[25] = { 0 };
     snprintf(path, 24, "/dev/input/%s", event);
 
@@ -19,20 +19,21 @@ static void check_input_dev(char* event) {
     char name[256] = { 0 };
     if (!ioctl(fd, EVIOCGNAME(sizeof(name)), name))
 		perror("Failed to get input name");
-    //printf("Device name: %s\n", name);
 
     if (!strcmp(name, "AT Translated Set 2 keyboard")) {
-        keyboard_fd = fd;
-        snprintf(keyboard_ev_name, 10, "%s", event);
+        kdev->fd = fd;
+        snprintf(kdev->ev_name, 10, "%s", event);
         return;
-    }
-    else {
+    } else if (!strcmp(name, "Tablet Mode Switch")) {
+		tdev->fd = fd;
+		return;
+	} else {
         close(fd);
         return;
     }
 }
 
-void scan_input_devices(void) {
+void scan_input_devices(KeyboardDevice *kdev, TabletSwitchDevice *tdev) {
     DIR *directory;
     struct dirent *entry;
 
@@ -43,22 +44,21 @@ void scan_input_devices(void) {
     }
     while ((entry = readdir(directory))) {
         if (entry->d_name[0] == 'e') {
-            //printf("event: %s\n", entry->d_name);
-            check_input_dev(entry->d_name);
+            check_input_dev(entry->d_name, kdev, tdev);
         }
     }
     closedir(directory);
 }
 
-void evloop(void) {
+void evloop(KeyboardDevice *kdev) {
 	struct input_event ev;
 	fd_set rdfs;
 	FD_ZERO(&rdfs);
-	FD_SET(keyboard_fd, &rdfs);
+	FD_SET(kdev->fd, &rdfs);
 
 	while (1) {
-		select(keyboard_fd + 1, &rdfs, NULL, NULL, NULL);
-		read(keyboard_fd, &ev, sizeof(struct input_event));
+		select(kdev->fd + 1, &rdfs, NULL, NULL, NULL);
+		read(kdev->fd, &ev, sizeof(struct input_event));
 		printf("event: ev.value=%d ev.code=%d\n", ev.value, ev.code);
 	}
 }

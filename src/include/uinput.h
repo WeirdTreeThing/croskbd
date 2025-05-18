@@ -1,6 +1,6 @@
 #ifndef UINPUT_H
 #define UINPUT_H
 
-int uinput_init(void);
+void uinput_init(UInputDevice *udev);
 
 #endif
