@@ -17,7 +17,8 @@ static void check_input_dev(char* event) {
         return;
     }
     char name[256] = { 0 };
-    ioctl(fd, EVIOCGNAME(sizeof(name)), name);
+    if (ioctl(fd, EVIOCGNAME(sizeof(name)), name))
+		perror("Failed to get input name");
     //printf("Device name: %s\n", name);
 
     if (!strcmp(name, "AT Translated Set 2 keyboard")) {
