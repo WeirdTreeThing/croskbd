@@ -48,3 +48,16 @@ void scan_input_devices(void) {
     }
     closedir(directory);
 }
+
+void evloop(void) {
+	struct input_event ev;
+	fd_set rdfs;
+	FD_ZERO(&rdfs);
+	FD_SET(keyboard_fd, &rdfs);
+
+	while (1) {
+		select(keyboard_fd + 1, &rdfs, NULL, NULL, NULL);
+		read(keyboard_fd, &ev, sizeof(struct input_event));
+		printf("event: ev.value=%d ev.code=%d\n", ev.value, ev.code);
+	}
+}

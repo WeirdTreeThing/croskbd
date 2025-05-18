@@ -14,5 +14,7 @@ int main(int argc, char** argv) {
 	}
 	printf("keyboard event: %s\n", keyboard_ev_name);
 
+	evloop();
+
 	return 0;
 }
