@@ -13,7 +13,7 @@ static void check_input_dev(char* event) {
 
     int fd = open(path, O_RDONLY);
     if (!fd) {
-        printf("Failed to open %s\n", path);
+        perror("Failed to read input event");
         return;
     }
     char name[256] = { 0 };
@@ -37,7 +37,7 @@ void scan_input_devices(void) {
 
     directory = opendir("/dev/input/");
     if (!directory) {
-        printf("failed to open /dev/input/");
+        perror("Failed to read /dev/input/");
         return;
     }
     while ((entry = readdir(directory))) {
