@@ -1,7 +1,7 @@
 BUILD_DIR := ./build
 SRC_DIR := ./src
 CC := clang
-CFLAGS := -std=c99 -Wall -Werror
+CFLAGS := -std=c99 -Wall -Werror -O2
 CPPFLAGS := -I$(SRC_DIR)/include
 TARGET := croskbd
 SRCS := $(shell find $(SRC_DIR) -name '*.c')
