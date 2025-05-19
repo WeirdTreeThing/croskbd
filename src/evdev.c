@@ -50,16 +50,3 @@ void scan_input_devices(KeyboardDevice *kdev, TabletSwitchDevice *tdev) {
   }
   closedir(directory);
 }
-
-void evloop(KeyboardDevice *kdev) {
-  struct input_event ev;
-  fd_set rdfs;
-  FD_ZERO(&rdfs);
-  FD_SET(kdev->fd, &rdfs);
-
-  while (1) {
-    select(kdev->fd + 1, &rdfs, NULL, NULL, NULL);
-    read(kdev->fd, &ev, sizeof(struct input_event));
-    printf("event: ev.value=%d ev.code=%d\n", ev.value, ev.code);
-  }
-}
