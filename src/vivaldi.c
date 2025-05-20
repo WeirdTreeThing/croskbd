@@ -39,11 +39,15 @@ int load_kb_vivaldi_data(KeyboardDevice *kdev) {
   read(fd, function_row_physmap, sizeof(function_row_physmap));
 
   char *tok = strtok(function_row_physmap, " ");
+  int count = 0;
   while (tok != NULL) {
     int scancode = strtol(tok, NULL, 16);
-    printf("keycode: %d\n", convert_scancode_to_keycode(kdev->fd, scancode));
+    int keycode = convert_scancode_to_keycode(kdev->fd, scancode);
+    kdev->top_row_keys[count] = keycode;
     tok = strtok(NULL, " ");
+    count++;
   }
+  kdev->num_top_row_keys = count + 1;
 
   return 1;
 }

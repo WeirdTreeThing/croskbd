@@ -65,6 +65,9 @@ int main(int argc, char **argv) {
   }
 
   load_kb_layout_data(&kdev);
+  for (int i = 0; i < kdev.num_top_row_keys; i++) {
+    printf("Top row keycode: %d\n", kdev.top_row_keys[i]);
+  }
 
   uinput_init(&udev);
 
