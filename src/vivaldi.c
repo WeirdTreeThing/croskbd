@@ -47,7 +47,7 @@ int load_kb_vivaldi_data(KeyboardDevice *kdev) {
     tok = strtok(NULL, " ");
     count++;
   }
-  kdev->num_top_row_keys = count + 1;
+  kdev->num_top_row_keys = count;
 
   return 1;
 }
