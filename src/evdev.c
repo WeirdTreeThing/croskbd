@@ -38,6 +38,9 @@ static void check_input_dev(char *event, KeyboardDevice *kdev,
 void load_kb_layout_data(KeyboardDevice *kdev) {
   if (!load_kb_vivaldi_data(kdev)) {
     printf("Top row layout data not found, using default layout.\n");
+    kdev->num_top_row_keys = 10;
+    int default_top_row[] = {158, 159, 173, 372, 120, 224, 225, 113, 114, 115};
+    memcpy(kdev->top_row_keys, default_top_row, sizeof(default_top_row));
   }
 }
 
