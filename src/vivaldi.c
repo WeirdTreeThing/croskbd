@@ -14,6 +14,7 @@ int convert_scancode_to_keycode(int fd, int scancode) {
       .keycode = 0,
   };
 
+  memcpy(entry.scancode, &scancode, sizeof(scancode));
   int ret = ioctl(fd, EVIOCGKEYCODE_V2, &entry);
   if (ret < 0) {
     perror("EVIOCGKEYCODE_V2");
