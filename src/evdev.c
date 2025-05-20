@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <vivaldi.h>
 
 static void check_input_dev(char *event, KeyboardDevice *kdev,
                             TabletSwitchDevice *tdev) {
@@ -31,6 +32,12 @@ static void check_input_dev(char *event, KeyboardDevice *kdev,
   } else {
     close(fd);
     return;
+  }
+}
+
+void load_kb_layout_data(KeyboardDevice *kdev) {
+  if (!load_kb_vivaldi_data(kdev)) {
+    printf("Top row layout data not found, using default layout.\n");
   }
 }
 

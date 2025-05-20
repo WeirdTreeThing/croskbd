@@ -64,6 +64,8 @@ int main(int argc, char **argv) {
     return (1);
   }
 
+  load_kb_layout_data(&kdev);
+
   uinput_init(&udev);
 
   if (udev.fd < 0) {
