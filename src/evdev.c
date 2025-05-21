@@ -39,6 +39,13 @@ static void check_input_dev(char *event, KeyboardDevice *kdev,
   }
 }
 
+void close_dev_fds(KeyboardDevice *kdev, TabletSwitchDevice *tdev) {
+  if (kdev->fd > 0)
+    close(kdev->fd);
+  if (tdev->fd > 0)
+    close(tdev->fd);
+}
+
 void load_kb_layout_data(KeyboardDevice *kdev) {
   if (!load_kb_vivaldi_data(kdev)) {
     printf("Top row layout data not found, using default layout.\n");

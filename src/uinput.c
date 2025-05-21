@@ -5,6 +5,13 @@
 #include <string.h>
 #include <unistd.h>
 
+void uinput_teardown(UInputDevice *udev) {
+  if (udev->fd) {
+    ioctl(udev->fd, UI_DEV_DESTROY);
+    close(udev->fd);
+  }
+}
+
 void uinput_init(UInputDevice *udev) {
   struct uinput_setup usetup;
 

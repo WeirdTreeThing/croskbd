@@ -3,6 +3,7 @@
 
 #include <croskbd.h>
 
+void uinput_teardown(UInputDevice *udev);
 void uinput_init(UInputDevice *udev);
 
 #endif

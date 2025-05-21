@@ -2,7 +2,9 @@
 #include <evdev.h>
 #include <linux/input.h>
 #include <poll.h>
+#include <signal.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <uinput.h>
 #include <unistd.h>
 
@@ -19,6 +21,12 @@ TabletSwitchDevice tdev = {
     .tablet_mode = 0,
 };
 UInputDevice udev = {.fd = -1};
+
+void cleanup() {
+  printf("\nExiting...\n");
+  close_dev_fds(&kdev, &tdev);
+  uinput_teardown(&udev);
+}
 
 void main_loop(void) {
   int nfds = 1;
@@ -57,6 +65,9 @@ void main_loop(void) {
 }
 
 int main(int argc, char **argv) {
+  atexit(cleanup);
+  signal(SIGTERM, exit);
+  signal(SIGINT, exit);
   scan_input_devices(&kdev, &tdev);
 
   if (kdev.fd < 0) {
