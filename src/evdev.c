@@ -26,6 +26,10 @@ static void check_input_dev(char *event, KeyboardDevice *kdev,
     kdev->fd = fd;
     snprintf(kdev->ev_name, 10, "%s", event);
     return;
+  } else if (!strcmp(name, "cros_ec")) {
+    kdev->fd = fd;
+    snprintf(kdev->ev_name, 10, "%s", event);
+    return;
   } else if (!strcmp(name, "Tablet Mode Switch")) {
     tdev->fd = fd;
     return;
