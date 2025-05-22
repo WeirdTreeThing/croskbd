@@ -46,6 +46,9 @@ void main_loop(void) {
            "handling.\n");
   }
 
+  // block all keyboard events to other processes
+  ioctl(kdev.fd, EVIOCGRAB);
+
   while (1) {
     if (poll(pfds, nfds, -1) < 0) {
       perror("poll");
@@ -53,13 +56,10 @@ void main_loop(void) {
     }
     if (pfds[1].revents) {
       read(tdev.fd, &ts_ev, sizeof(ts_ev));
-      printf("Event --------------\nev.code=%d ev.value=%d\n", ts_ev.code,
-             ts_ev.value);
     }
     if (pfds[0].revents) {
       read(kdev.fd, &kb_ev, sizeof(kb_ev));
-      printf("Event --------------\nev.code=%d ev.value=%d\n", kb_ev.code,
-             kb_ev.value);
+      uinput_send_event(&udev, kb_ev.type, kb_ev.code, kb_ev.value);
     }
   }
 }

@@ -1,9 +1,20 @@
 #include <croskbd.h>
 #include <fcntl.h>
+#include <linux/input.h>
 #include <linux/uinput.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+
+void uinput_send_event(UInputDevice *udev, int type, int code, int value) {
+  struct input_event ev;
+  ev.type = type;
+  ev.code = code;
+  ev.value = value;
+  ev.time.tv_sec = 0;
+  ev.time.tv_usec = 0;
+  write(udev->fd, &ev, sizeof(ev));
+}
 
 void uinput_teardown(UInputDevice *udev) {
   if (udev->fd) {
