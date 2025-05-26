@@ -15,6 +15,7 @@ typedef struct {
   char ev_name[10];
   int top_row_keys[MAX_TOP_ROW_KEYS];
   int num_top_row_keys;
+  int has_vivaldi;
 } KeyboardDevice;
 
 typedef struct {

@@ -15,6 +15,7 @@ Settings settings = {
 };
 KeyboardDevice kdev = {
     .fd = -1,
+    .has_vivaldi = 0,
 };
 TabletSwitchDevice tdev = {
     .fd = -1,

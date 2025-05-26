@@ -36,6 +36,7 @@ int load_kb_vivaldi_data(KeyboardDevice *kdev) {
     perror("open vivaldi data");
     return 0;
   }
+  kdev->has_vivaldi = 1;
   read(fd, function_row_physmap, sizeof(function_row_physmap));
 
   char *tok = strtok(function_row_physmap, " ");
