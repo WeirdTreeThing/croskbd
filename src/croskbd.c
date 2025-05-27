@@ -2,6 +2,7 @@
 #include <evdev.h>
 #include <linux/input.h>
 #include <poll.h>
+#include <remap.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,6 +17,8 @@ Settings settings = {
 KeyboardDevice kdev = {
     .fd = -1,
     .has_vivaldi = 0,
+    .remaps = {0},
+    .num_remaps = 0,
 };
 TabletSwitchDevice tdev = {
     .fd = -1,
@@ -79,6 +82,11 @@ int main(int argc, char **argv) {
   load_kb_layout_data(&kdev);
   for (int i = 0; i < kdev.num_top_row_keys; i++) {
     printf("Top row keycode: %d\n", kdev.top_row_keys[i]);
+  }
+  generate_remaps(&kdev);
+  for (int i = 0; i < kdev.num_remaps; i++) {
+    printf("remap: original=%d remap=%d\n", kdev.remaps[i].original_key,
+           kdev.remaps[i].remap_key);
   }
 
   uinput_init(&udev);

@@ -5,6 +5,13 @@
 #define MAX_TOP_ROW_KEYS 15
 
 typedef struct {
+  int original_key;
+  int remap_key;
+  int mod_keys[4];
+  int num_mod_keys;
+} KeyRemap;
+
+typedef struct {
   int invert_top_row;
   int handle_tablet_switch;
   int del_key;
@@ -16,6 +23,8 @@ typedef struct {
   int top_row_keys[MAX_TOP_ROW_KEYS];
   int num_top_row_keys;
   int has_vivaldi;
+  KeyRemap remaps[20]; // adjust this if needed
+  int num_remaps;
 } KeyboardDevice;
 
 typedef struct {
