@@ -63,7 +63,8 @@ void main_loop(void) {
     }
     if (pfds[0].revents) {
       read(kdev.fd, &kb_ev, sizeof(kb_ev));
-      uinput_send_event(&udev, kb_ev.type, kb_ev.code, kb_ev.value);
+      int keycode = remap_key(&kdev, kb_ev.code);
+      uinput_send_event(&udev, kb_ev.type, keycode, kb_ev.value);
     }
   }
 }

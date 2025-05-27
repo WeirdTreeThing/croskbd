@@ -36,6 +36,17 @@ void generate_remaps(KeyboardDevice *kdev) {
   }
 }
 
+int remap_key(KeyboardDevice *kdev, int key) {
+  // todo: also check for mod keys
+
+  for (int i = 0; i < kdev->num_remaps; i++) {
+    if (kdev->remaps[i].original_key == key)
+      return kdev->remaps[i].remap_key;
+  }
+
+  return key;
+}
+
 void add_mod_key(int key) {
   if ((mod_keys_pressed + 1) == MAX_MOD_KEYS) {
     printf("Max mod keys reached\n");
