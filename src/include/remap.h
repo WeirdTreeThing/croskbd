@@ -2,10 +2,10 @@
 #define REMAP_H
 
 #include <croskbd.h>
+#include <linux/input.h>
 
+void process_key(KeyboardDevice *kdev, UInputDevice *udev,
+                 struct input_event *ev);
 void generate_remaps(KeyboardDevice *kdev);
-int remap_key(KeyboardDevice *kdev, int key);
-void add_mod_key(int key);
-void remove_mod_key(int key);
 
 #endif
