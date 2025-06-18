@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <linux/input.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
@@ -62,7 +63,7 @@ void scan_input_devices(KeyboardDevice *kdev, TabletSwitchDevice *tdev) {
   directory = opendir("/dev/input/");
   if (!directory) {
     perror("Failed to read /dev/input/");
-    return;
+    exit(1);
   }
   while ((entry = readdir(directory))) {
     if (entry->d_name[0] == 'e') {

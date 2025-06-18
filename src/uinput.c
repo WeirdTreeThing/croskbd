@@ -3,6 +3,7 @@
 #include <linux/input.h>
 #include <linux/uinput.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -29,7 +30,7 @@ void uinput_init(UInputDevice *udev) {
   int fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
   if (fd < 0) {
     perror("Failed to open uinput");
-    return;
+    exit(1);
   }
 
   ioctl(fd, UI_SET_EVBIT, EV_REP);

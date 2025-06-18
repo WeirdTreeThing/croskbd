@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
 
   if (kdev.fd < 0) {
     printf("Failed to find keyboard device\n");
-    return (1);
+    exit(1);
   }
 
   load_kb_layout_data(&kdev);
