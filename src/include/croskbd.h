@@ -9,6 +9,7 @@ typedef struct {
   int remap_key;
   int mod_keys[4];
   int num_mod_keys;
+  int repeatable;
 } KeyRemap;
 
 typedef struct {

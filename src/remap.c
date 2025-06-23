@@ -5,26 +5,12 @@
 #include <uinput.h>
 
 #define MAX_MOD_KEYS 5
-/*
+
 static int mod_key_codes[MAX_MOD_KEYS] = {0};
 static int mod_keys_pressed = 0;
 
-
-listatic int check_mod_key(int key) {
-  // return value 0 means key is not in list
-  // 1 means key is in list
-
-  for (int i = 0; i < mod_keys_pressed; i++) {
-    if (mod_keys[i] == key)
-      return 1;
-  }
-
-  return 0;
-};
-
-
 static void add_mod_key(int key) {
-  if ((mod_keys_pressed + 1) == MAX_MOD_KEYS) {
+  if (mod_keys_pressed == MAX_MOD_KEYS) {
     printf("Max mod keys reached\n");
     return;
   }
@@ -33,29 +19,125 @@ static void add_mod_key(int key) {
 };
 
 static void remove_mod_key(int key) {
-  if ((mod_keys_pressed - 1) == 0) {
+  if (mod_keys_pressed == 0) {
     printf("Min mod keys reached\n");
     return;
   }
   mod_keys_pressed--;
   mod_key_codes[mod_keys_pressed] = 0;
 };
-*/
-static int remap_key(KeyboardDevice *kdev, int key) {
-  // todo: also check for mod keys
+
+static int check_mod_keys(KeyboardDevice *kdev, int remap) {
+  // returns 1 if they match, 0 if not
+  if (mod_keys_pressed != kdev->remaps[remap].num_mod_keys)
+    return 0;
+  for (int i = 0; i < kdev->remaps[remap].num_mod_keys; i++) {
+    if (mod_key_codes[i] != kdev->remaps[remap].mod_keys[i])
+      return 0;
+  }
+  return 1;
+}
+
+static int exact_remap(KeyboardDevice *kdev, int key) {
+  // Returns remap index if exists, otherwise returns -1
 
   for (int i = 0; i < kdev->num_remaps; i++) {
-    if (kdev->remaps[i].original_key == key)
-      return kdev->remaps[i].remap_key;
+    if (kdev->remaps[i].original_key != key)
+      continue;
+    if (check_mod_keys(kdev, i))
+      return i;
   }
+  return -1;
+}
 
-  return key;
+static int repeatable_remap(KeyboardDevice *kdev, int key) {
+  // Returns index if there exists a remap with the same og keycode and
+  // repeatable set to 1 Even if the remap keycode is the same across multiple,
+  // there *should* only be one that can be repeatable at least i think and
+  // otherwise returns -1
+
+  for (int i = 0; i < kdev->num_remaps; i++) {
+    if (kdev->remaps[i].original_key == key && kdev->remaps[i].repeatable)
+      return i;
+  }
+  return -1;
+}
+
+static void send_mod_key_events(KeyboardDevice *kdev, UInputDevice *udev,
+                                int remap, int state) {
+  for (int i = 0; i < kdev->remaps[remap].num_mod_keys; i++)
+    uinput_send_event(udev, EV_KEY, kdev->remaps[remap].mod_keys[i], state);
+}
+
+static int is_modkey(int key) {
+  switch (key) { // TODO: right mod keys
+  case KEY_LEFTCTRL:
+    return 1;
+  case KEY_LEFTALT:
+    return 1;
+  case KEY_LEFTSHIFT:
+    return 1;
+  case KEY_LEFTMETA:
+    return 1;
+  default:
+    return 0;
+  }
 }
 
 void process_key(KeyboardDevice *kdev, UInputDevice *udev,
                  struct input_event *ev) {
-  int keycode = remap_key(kdev, ev->code);
-  uinput_send_event(udev, ev->type, keycode, ev->value);
+  // original keycode will always live in ev
+  // keycode will either be remapped or not
+  int keycode = ev->code;
+
+  if (ev->type != EV_KEY)
+    return;
+
+  int remap = exact_remap(kdev, keycode);
+
+  switch (ev->value) {
+  case 0:
+    if (remap != -1) {
+      send_mod_key_events(kdev, udev, remap, 0);
+      keycode = kdev->remaps[remap].remap_key;
+    } else {
+      int rep_remap = repeatable_remap(kdev, ev->code);
+      if (rep_remap != -1) {
+        kdev->remaps[rep_remap].repeatable = 0;
+        keycode = kdev->remaps[rep_remap].remap_key;
+      }
+    }
+    uinput_send_event(udev, EV_KEY, keycode, 0);
+    if (is_modkey(ev->code))
+      remove_mod_key(ev->code);
+    break;
+  case 1:
+    if (remap != -1) {
+      keycode = kdev->remaps[remap].remap_key;
+      send_mod_key_events(kdev, udev, remap, 0);
+    }
+    uinput_send_event(udev, EV_KEY, keycode, 1);
+    if (is_modkey(ev->code))
+      add_mod_key(ev->code);
+    break;
+  case 2:
+    if (remap != -1) {
+      kdev->remaps[remap].repeatable = 1;
+      send_mod_key_events(kdev, udev, remap, 0);
+      keycode = kdev->remaps[remap].remap_key;
+    } else {
+      int rep_remap = repeatable_remap(kdev, ev->code);
+      if (rep_remap != -1)
+        keycode = kdev->remaps[rep_remap].remap_key;
+    }
+    uinput_send_event(udev, EV_KEY, keycode, 2);
+    break;
+  default:
+    printf("Invalid ev.value!\n");
+    break;
+  }
+
+  uinput_send_event(udev, EV_SYN, SYN_REPORT, 0); // Sync
 }
 
 void generate_remaps(KeyboardDevice *kdev) {
@@ -69,6 +151,16 @@ void generate_remaps(KeyboardDevice *kdev) {
 
     kdev->remaps[i].original_key = original_key;
     kdev->remaps[i].remap_key = remap_key;
+    kdev->remaps[i].repeatable = 0;
+    kdev->remaps[i].num_mod_keys = 0;
     kdev->num_remaps++;
   }
+
+  // testing alt + backspace, in the future i need a helper function to do this
+  kdev->remaps[10].original_key = KEY_BACKSPACE;
+  kdev->remaps[10].remap_key = KEY_DELETE;
+  kdev->remaps[10].repeatable = 0;
+  kdev->remaps[10].num_mod_keys = 1;
+  kdev->remaps[10].mod_keys[0] = KEY_LEFTALT;
+  kdev->num_remaps++;
 }
