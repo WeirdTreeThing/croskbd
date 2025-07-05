@@ -1,6 +1,7 @@
 #include <croskbd.h>
 #include <linux/input-event-codes.h>
 #include <linux/input.h>
+#include <static_remaps.h>
 #include <stdio.h>
 #include <uinput.h>
 
@@ -84,6 +85,23 @@ static int is_modkey(int key) {
   }
 }
 
+// return 1 on success, 0 on faliure
+static int add_remap(KeyboardDevice *kdev, KeyRemap *remap) {
+  if (kdev->num_remaps + 1 >= MAX_REMAPS)
+    return 0;
+  // i tried to use a memcpy here and it didnt work and idk why and i didnt feel
+  // like figuring it out
+  kdev->remaps[kdev->num_remaps].original_key = remap->original_key;
+  kdev->remaps[kdev->num_remaps].remap_key = remap->remap_key;
+  kdev->remaps[kdev->num_remaps].num_mod_keys = remap->num_mod_keys;
+  kdev->remaps[kdev->num_remaps].repeatable = 0;
+  for (int i = 0; i < remap->num_mod_keys; i++) {
+    kdev->remaps[kdev->num_remaps].mod_keys[i] = remap->mod_keys[i];
+  }
+  kdev->num_remaps++;
+  return 1;
+}
+
 void process_key(KeyboardDevice *kdev, UInputDevice *udev,
                  struct input_event *ev) {
   // original keycode will always live in ev
@@ -149,18 +167,14 @@ void generate_remaps(KeyboardDevice *kdev) {
     if (kdev->has_vivaldi)
       original_key = kdev->top_row_keys[i];
 
-    kdev->remaps[i].original_key = original_key;
-    kdev->remaps[i].remap_key = remap_key;
-    kdev->remaps[i].repeatable = 0;
-    kdev->remaps[i].num_mod_keys = 0;
-    kdev->num_remaps++;
+    KeyRemap remap = {
+        .original_key = original_key,
+        .remap_key = remap_key,
+        .num_mod_keys = 0,
+        .mod_keys = {0},
+    };
+    add_remap(kdev, &remap);
   }
 
-  // testing alt + backspace, in the future i need a helper function to do this
-  kdev->remaps[10].original_key = KEY_BACKSPACE;
-  kdev->remaps[10].remap_key = KEY_DELETE;
-  kdev->remaps[10].repeatable = 0;
-  kdev->remaps[10].num_mod_keys = 1;
-  kdev->remaps[10].mod_keys[0] = KEY_LEFTALT;
-  kdev->num_remaps++;
+  add_remap(kdev, &alt_backspace_remap);
 }

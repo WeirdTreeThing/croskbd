@@ -3,6 +3,7 @@
 
 // https://chromium.googlesource.com/chromiumos/platform/ec/+/9c9df9c7d40daf7f77f8b4132aa959ab024b219c/include/ec_commands.h#7101
 #define MAX_TOP_ROW_KEYS 15
+#define MAX_REMAPS 20 // adjust if needed
 
 typedef struct {
   int original_key;
@@ -24,7 +25,7 @@ typedef struct {
   int top_row_keys[MAX_TOP_ROW_KEYS];
   int num_top_row_keys;
   int has_vivaldi;
-  KeyRemap remaps[20]; // adjust this if needed
+  KeyRemap remaps[MAX_REMAPS];
   int num_remaps;
 } KeyboardDevice;
 
