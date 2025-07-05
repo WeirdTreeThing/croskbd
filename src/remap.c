@@ -177,4 +177,5 @@ void generate_remaps(KeyboardDevice *kdev) {
   }
 
   add_remap(kdev, &alt_backspace_remap);
+  add_remap(kdev, &ctrl_f5_remap);
 }
