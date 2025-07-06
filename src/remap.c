@@ -87,8 +87,10 @@ static int is_modkey(int key) {
 
 // return 1 on success, 0 on faliure
 static int add_remap(KeyboardDevice *kdev, KeyRemap *remap) {
-  if (kdev->num_remaps + 1 >= MAX_REMAPS)
+  if (kdev->num_remaps + 1 >= MAX_REMAPS) {
+    printf("remap list full bruh %d\n", kdev->num_remaps);
     return 0;
+  }
   // i tried to use a memcpy here and it didnt work and idk why and i didnt feel
   // like figuring it out
   kdev->remaps[kdev->num_remaps].original_key = remap->original_key;
@@ -177,5 +179,13 @@ void generate_remaps(KeyboardDevice *kdev) {
   }
 
   add_remap(kdev, &alt_backspace_remap);
-  add_remap(kdev, &ctrl_f5_remap);
+  if (kdev->has_vivaldi) {
+    add_remap(kdev, &ctrl_scale_remap);
+    add_remap(kdev, &alt_bldown_remap);
+    add_remap(kdev, &alt_blup_remap);
+  } else {
+    add_remap(kdev, &ctrl_f5_remap);
+    add_remap(kdev, &alt_f6_remap);
+    add_remap(kdev, &alt_f7_remap);
+  }
 }
