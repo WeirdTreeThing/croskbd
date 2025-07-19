@@ -10,17 +10,17 @@ Another issue croskbd aims to solve is tablet mode on 2 in 1 Chromebooks. Someti
 
 ##  Features
 
-[x] Read events from keyboard
-[x] Send events via uinput
-[x] Key remapping support
-[x] Top row remaps
-[] Inverted top row remaps
-[] Every misc remap (from ChromeOS and cros-keyboard-map)
-[] Hammer keyboard support
-[] Special case devices (eve, atlas, sarien)
-[] Tablet mode handling
-[] Config file
-[] Init services
+- [x] Read events from keyboard
+- [x] Send events via uinput
+- [x] Key remapping support
+- [x] Top row remaps
+- [] Inverted top row remaps
+- [] Every misc remap (from ChromeOS and cros-keyboard-map)
+- [] Hammer keyboard support
+- [] Special case devices (eve, atlas, sarien)
+- [] Tablet mode handling
+- [] Config file
+- [] Init services
 
 ## Comparison to other solution
 ### keyd (with cros-keyboard-map)
