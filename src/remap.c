@@ -104,6 +104,24 @@ static int add_remap(KeyboardDevice *kdev, KeyRemap *remap) {
   return 1;
 }
 
+static void generate_top_row_remaps(KeyboardDevice *kdev) {
+  for (int i = 0; i < kdev->num_top_row_keys; i++) {
+    int original_key = KEY_F1 + i;
+    int remap_key = kdev->top_row_keys[i];
+
+    if (kdev->has_vivaldi)
+      original_key = kdev->top_row_keys[i];
+
+    KeyRemap remap = {
+        .original_key = original_key,
+        .remap_key = remap_key,
+        .num_mod_keys = 0,
+        .mod_keys = {0},
+    };
+    add_remap(kdev, &remap);
+  }
+}
+
 void process_key(KeyboardDevice *kdev, UInputDevice *udev,
                  struct input_event *ev) {
   // original keycode will always live in ev
@@ -160,23 +178,8 @@ void process_key(KeyboardDevice *kdev, UInputDevice *udev,
   uinput_send_event(udev, EV_SYN, SYN_REPORT, 0); // Sync
 }
 
-void generate_remaps(KeyboardDevice *kdev) {
-  // top row map
-  for (int i = 0; i < kdev->num_top_row_keys; i++) {
-    int original_key = KEY_F1 + i;
-    int remap_key = kdev->top_row_keys[i];
-
-    if (kdev->has_vivaldi)
-      original_key = kdev->top_row_keys[i];
-
-    KeyRemap remap = {
-        .original_key = original_key,
-        .remap_key = remap_key,
-        .num_mod_keys = 0,
-        .mod_keys = {0},
-    };
-    add_remap(kdev, &remap);
-  }
+void add_remaps(KeyboardDevice *kdev) {
+  generate_top_row_remaps(kdev);
 
   add_remap(kdev, &alt_backspace_remap);
   if (kdev->has_vivaldi) {

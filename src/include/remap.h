@@ -6,6 +6,6 @@
 
 void process_key(KeyboardDevice *kdev, UInputDevice *udev,
                  struct input_event *ev);
-void generate_remaps(KeyboardDevice *kdev);
+void add_remaps(KeyboardDevice *kdev);
 
 #endif

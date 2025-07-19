@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
   for (int i = 0; i < kdev.num_top_row_keys; i++) {
     printf("Top row keycode: %d\n", kdev.top_row_keys[i]);
   }
-  generate_remaps(&kdev);
+  add_remaps(&kdev);
   for (int i = 0; i < kdev.num_remaps; i++) {
     printf("remap: original=%d remap=%d\n", kdev.remaps[i].original_key,
            kdev.remaps[i].remap_key);
