@@ -32,7 +32,7 @@ void cleanup() {
   uinput_teardown(&udev);
 }
 
-void main_loop(void) {
+void input_loop(void) {
   int nfds = 1;
   struct pollfd pfds[2];
   struct input_event kb_ev;
@@ -62,7 +62,11 @@ void main_loop(void) {
       read(tdev.fd, &ts_ev, sizeof(ts_ev));
     }
     if (pfds[0].revents) {
-      read(kdev.fd, &kb_ev, sizeof(kb_ev));
+      int ret = read(kdev.fd, &kb_ev, sizeof(kb_ev));
+      if (ret < 0) {
+        printf("read() returned %d bytes", ret);
+        return;
+      }
       process_key(&kdev, &udev, &kb_ev);
     }
   }
@@ -72,12 +76,16 @@ int main(int argc, char **argv) {
   atexit(cleanup);
   signal(SIGTERM, exit);
   signal(SIGINT, exit);
-  scan_input_devices(&kdev, &tdev);
+  input_device dev = {};
+  int ret = get_keyboards(&dev);
 
-  if (kdev.fd < 0) {
+  if (ret == 0) {
     printf("Failed to find keyboard device\n");
     exit(1);
   }
+
+  kdev.fd = dev.fd;
+  snprintf(kdev.ev_name, sizeof(kdev.ev_name), "%s", dev.event_name);
 
   load_kb_layout_data(&kdev);
   for (int i = 0; i < kdev.num_top_row_keys; i++) {
@@ -96,7 +104,7 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  main_loop();
+  input_loop();
 
   return 0;
 }
