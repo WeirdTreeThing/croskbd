@@ -49,7 +49,7 @@ static int check_input_dev_id(input_device *dev, char *event, int pid,
   struct input_id id = {};
   if (!ioctl(fd, EVIOCGNAME(sizeof(name)), name))
     perror("Failed to get input name");
-  if (!ioctl(fd, EVIOCGID, &id))
+  if (ioctl(fd, EVIOCGID, &id))
     perror("Failed to get input id");
 
   if (id.vendor == vid && id.product == pid) {
