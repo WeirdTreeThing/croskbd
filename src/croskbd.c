@@ -77,25 +77,6 @@ int main(int argc, char **argv) {
   signal(SIGTERM, exit);
   signal(SIGINT, exit);
   input_device dev = {};
-  int ret = get_keyboards(&dev);
-
-  if (ret == 0) {
-    printf("Failed to find keyboard device\n");
-    exit(1);
-  }
-
-  kdev.fd = dev.fd;
-  snprintf(kdev.ev_name, sizeof(kdev.ev_name), "%s", dev.event_name);
-
-  load_kb_layout_data(&kdev);
-  for (int i = 0; i < kdev.num_top_row_keys; i++) {
-    printf("Top row keycode: %d\n", kdev.top_row_keys[i]);
-  }
-  add_remaps(&kdev);
-  for (int i = 0; i < kdev.num_remaps; i++) {
-    printf("remap: original=%d remap=%d\n", kdev.remaps[i].original_key,
-           kdev.remaps[i].remap_key);
-  }
 
   uinput_init(&udev);
 
@@ -104,7 +85,19 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  input_loop();
+  while (1) {
+    int ret = get_keyboards(&dev);
+
+    if (ret) {
+      kdev.fd = dev.fd;
+      snprintf(kdev.ev_name, sizeof(kdev.ev_name), "%s", dev.event_name);
+      load_kb_layout_data(&kdev);
+      add_remaps(&kdev);
+      input_loop();
+    } else {
+      printf("Failed to find keyboard device\n");
+    }
+  }
 
   return 0;
 }
