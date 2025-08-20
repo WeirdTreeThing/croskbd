@@ -17,7 +17,7 @@ static void add_mod_key(int key) {
   }
   mod_key_codes[mod_keys_pressed] = key;
   mod_keys_pressed++;
-};
+}
 
 static void remove_mod_key(int key) {
   if (mod_keys_pressed == 0) {
@@ -26,7 +26,7 @@ static void remove_mod_key(int key) {
   }
   mod_keys_pressed--;
   mod_key_codes[mod_keys_pressed] = 0;
-};
+}
 
 static int check_mod_keys(KeyboardDevice *kdev, int remap) {
   // returns 1 if they match, 0 if not
