@@ -1,4 +1,5 @@
 #include <croskbd.h>
+#include <errno.h>
 #include <evdev.h>
 #include <linux/input.h>
 #include <poll.h>
@@ -6,8 +7,10 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <uinput.h>
 #include <unistd.h>
+#include <utils.h>
 
 Settings settings = {
     .invert_top_row = 0,
@@ -27,7 +30,7 @@ TabletSwitchDevice tdev = {
 UInputDevice udev = {.fd = -1};
 
 void cleanup() {
-  printf("\nExiting...\n");
+  dbg("Exiting...");
   close_dev_fds(&kdev, &tdev);
   uinput_teardown(&udev);
 }
@@ -46,8 +49,7 @@ void input_loop(void) {
     pfds[1].events = POLLIN;
     nfds++;
   } else {
-    printf("Tablet switch device not found, disabling tablet mode switch "
-           "handling.\n");
+    warn("Tablet switch device not found, disabling tablet mode switch handling.");
   }
 
   // block all keyboard events to other processes
@@ -55,7 +57,7 @@ void input_loop(void) {
 
   while (1) {
     if (poll(pfds, nfds, -1) < 0) {
-      perror("poll");
+      err("poll failed: %s", strerror(errno));
       return;
     }
     if (pfds[1].revents) {
@@ -64,7 +66,7 @@ void input_loop(void) {
     if (pfds[0].revents) {
       int ret = read(kdev.fd, &kb_ev, sizeof(kb_ev));
       if (ret < 0) {
-        printf("read() returned %d bytes", ret);
+        err("read() returned %d bytes", ret);
         return;
       }
       process_key(&kdev, &udev, &kb_ev);
@@ -81,7 +83,7 @@ int main(int argc, char **argv) {
   uinput_init(&udev);
 
   if (udev.fd < 0) {
-    printf("Failed to create virtual keyboard\n");
+    err("Failed to create virtual keyboard");
     return 1;
   }
 
@@ -95,7 +97,7 @@ int main(int argc, char **argv) {
       add_remaps(&kdev);
       input_loop();
     } else {
-      printf("Failed to find keyboard device\n");
+      err("Failed to find keyboard device");
     }
   }
 

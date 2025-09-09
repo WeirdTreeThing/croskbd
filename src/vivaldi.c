@@ -1,4 +1,5 @@
 #include <croskbd.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <linux/input.h>
 #include <stdio.h>
@@ -6,6 +7,7 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <utils.h>
 
 int convert_scancode_to_keycode(int fd, int scancode) {
   struct input_keymap_entry entry = {
@@ -17,7 +19,7 @@ int convert_scancode_to_keycode(int fd, int scancode) {
   memcpy(entry.scancode, &scancode, sizeof(scancode));
   int ret = ioctl(fd, EVIOCGKEYCODE_V2, &entry);
   if (ret < 0) {
-    perror("EVIOCGKEYCODE_V2");
+    err("EVIOCGKEYCODE_V2: %s", strerror(errno));
     return 0;
   }
 
@@ -33,7 +35,7 @@ int load_kb_vivaldi_data(KeyboardDevice *kdev) {
 
   int fd = open(data_path, O_RDONLY);
   if (fd < 0) {
-    perror("open vivaldi data");
+    err("open vivaldi data failed: %s", strerror(errno));
     return 0;
   }
   kdev->has_vivaldi = 1;

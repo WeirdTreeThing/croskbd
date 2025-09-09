@@ -1,11 +1,12 @@
 #include <croskbd.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <linux/input.h>
 #include <linux/uinput.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <utils.h>
 
 void uinput_send_event(UInputDevice *udev, int type, int code, int value) {
   struct input_event ev;
@@ -29,7 +30,7 @@ void uinput_init(UInputDevice *udev) {
 
   int fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
   if (fd < 0) {
-    perror("Failed to open uinput");
+    err("Failed to open uinput: %s", strerror(errno));
     exit(1);
   }
 

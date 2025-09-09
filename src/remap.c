@@ -2,8 +2,8 @@
 #include <linux/input-event-codes.h>
 #include <linux/input.h>
 #include <static_remaps.h>
-#include <stdio.h>
 #include <uinput.h>
+#include <utils.h>
 
 #define MAX_MOD_KEYS 5
 
@@ -12,7 +12,7 @@ static int mod_keys_pressed = 0;
 
 static void add_mod_key(int key) {
   if (mod_keys_pressed == MAX_MOD_KEYS) {
-    printf("Max mod keys reached\n");
+    dbg("Max mod keys reached");
     return;
   }
   mod_key_codes[mod_keys_pressed] = key;
@@ -21,7 +21,7 @@ static void add_mod_key(int key) {
 
 static void remove_mod_key(int key) {
   if (mod_keys_pressed == 0) {
-    printf("Min mod keys reached\n");
+    dbg("Min mod keys reached");
     return;
   }
   mod_keys_pressed--;
@@ -88,7 +88,7 @@ static int is_modkey(int key) {
 // return 1 on success, 0 on faliure
 static int add_remap(KeyboardDevice *kdev, KeyRemap *remap) {
   if (kdev->num_remaps + 1 >= MAX_REMAPS) {
-    printf("remap list full bruh %d\n", kdev->num_remaps);
+    err("remap list full bruh %d", kdev->num_remaps);
     return 0;
   }
   // i tried to use a memcpy here and it didnt work and idk why and i didnt feel
@@ -171,7 +171,7 @@ void process_key(KeyboardDevice *kdev, UInputDevice *udev,
     uinput_send_event(udev, EV_KEY, keycode, 2);
     break;
   default:
-    printf("Invalid ev.value!\n");
+    err("Invalid ev.value");
     break;
   }
 

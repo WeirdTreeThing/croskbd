@@ -1,5 +1,6 @@
 #include <croskbd.h>
 #include <dirent.h>
+#include <errno.h>
 #include <evdev.h>
 #include <fcntl.h>
 #include <linux/input.h>
@@ -8,6 +9,7 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <utils.h>
 #include <vivaldi.h>
 
 static int check_input_dev_name(input_device *dev, char *event,
@@ -17,12 +19,12 @@ static int check_input_dev_name(input_device *dev, char *event,
 
   int fd = open(path, O_RDONLY);
   if (!fd) {
-    perror("Failed to read input event");
+    err("Failed to read input event: %s", strerror(errno));
     return 0;
   }
   char name[256] = {0};
   if (!ioctl(fd, EVIOCGNAME(sizeof(name)), name))
-    perror("Failed to get input name");
+    err("Failed to get input name: %s", strerror(errno));
 
   if (!strcmp(name, match_name)) {
     dev->fd = fd;
@@ -41,16 +43,16 @@ static int check_input_dev_id(input_device *dev, char *event, int pid,
 
   int fd = open(path, O_RDONLY);
   if (!fd) {
-    perror("Failed to read input event");
+    err("Failed to read input event: %s", strerror(errno));
     return 0;
   }
 
   char name[256] = {0};
   struct input_id id = {};
   if (!ioctl(fd, EVIOCGNAME(sizeof(name)), name))
-    perror("Failed to get input name");
+    err("Failed to get input name: %s", strerror(errno));
   if (ioctl(fd, EVIOCGID, &id))
-    perror("Failed to get input id");
+    err("Failed to get input id: %s", strerror(errno));
 
   if (id.vendor == vid && id.product == pid) {
     dev->fd = fd;
@@ -71,7 +73,7 @@ static int scan_input_devices(input_device *dev, char *name, int vid, int pid) {
 
   directory = opendir("/dev/input/");
   if (!directory) {
-    perror("Failed to read /dev/input/");
+    err("Failed to read /dev/input/: %s", strerror(errno));
     exit(1);
   }
   while ((entry = readdir(directory))) {
@@ -113,7 +115,7 @@ void close_dev_fds(KeyboardDevice *kdev, TabletSwitchDevice *tdev) {
 
 void load_kb_layout_data(KeyboardDevice *kdev) {
   if (!load_kb_vivaldi_data(kdev)) {
-    printf("Top row layout data not found, using default layout.\n");
+    dbg("Top row layout data not found, using default layout.");
     kdev->num_top_row_keys = 10;
     int default_top_row[] = {158, 159, 173, 372, 120, 224, 225, 113, 114, 115};
     memcpy(kdev->top_row_keys, default_top_row, sizeof(default_top_row));
