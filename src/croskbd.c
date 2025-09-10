@@ -16,6 +16,7 @@ Settings settings = {
     .invert_top_row = 0,
     .handle_tablet_switch = 1,
     .del_key = 1,
+    .debug = 1,
 };
 KeyboardDevice kdev = {
     .fd = -1,

@@ -1,6 +1,9 @@
+#include <croskbd.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <utils.h>
+
+extern Settings settings;
 
 char * levels[LOG_LEN] = {
   "DEBUG",
@@ -15,6 +18,8 @@ char * colors[LOG_LEN] = {
 };
 
 void log_msg(LOG_LEVEL level, const char *fmt, ...) {
+  if (!settings.debug && level == LOG_DEBUG)
+    return;
   va_list args;
   va_start(args, fmt);
   printf("%s[%s] ", colors[level], levels[level]);

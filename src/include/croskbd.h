@@ -17,6 +17,7 @@ typedef struct {
   int invert_top_row;
   int handle_tablet_switch;
   int del_key;
+  int debug;
 } Settings;
 
 typedef struct {
