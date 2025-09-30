@@ -1,3 +1,4 @@
+#include <config.h>
 #include <croskbd.h>
 #include <errno.h>
 #include <evdev.h>
@@ -15,8 +16,8 @@
 Settings settings = {
     .invert_top_row = 0,
     .handle_tablet_switch = 1,
-    .del_key = 1,
-    .debug = 1,
+    .delete_key = 1,
+    .debug = 0,
     .override_key_codes = 1,
 };
 KeyboardDevice kdev = {
@@ -80,6 +81,9 @@ int main(int argc, char **argv) {
   atexit(cleanup);
   signal(SIGTERM, exit);
   signal(SIGINT, exit);
+
+  parse_config();
+
   input_device dev = {};
 
   uinput_init(&udev);
