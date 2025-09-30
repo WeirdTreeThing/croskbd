@@ -1,6 +1,7 @@
 #include <croskbd.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <linux/input-event-codes.h>
 #include <linux/input.h>
 #include <linux/uinput.h>
 #include <stdlib.h>
@@ -8,13 +9,28 @@
 #include <unistd.h>
 #include <utils.h>
 
+extern Settings settings;
+
 void uinput_send_event(UInputDevice *udev, int type, int code, int value) {
   struct input_event ev;
   ev.type = type;
-  ev.code = code;
   ev.value = value;
   ev.time.tv_sec = 0;
   ev.time.tv_usec = 0;
+
+  // Certain keycodes, such as KEY_FULL_SCREEN, are not recognized by many programs
+  // Manually remap them to more useful keys, such as KEY_F11
+  if (settings.override_key_codes)
+    switch (code) {
+      case KEY_FULL_SCREEN:
+        ev.code = KEY_F11;
+        break;
+      default:
+        ev.code = code;
+    }
+  else
+    ev.code = code;
+
   write(udev->fd, &ev, sizeof(ev));
 }
 

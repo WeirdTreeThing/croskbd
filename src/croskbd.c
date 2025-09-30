@@ -17,6 +17,7 @@ Settings settings = {
     .handle_tablet_switch = 1,
     .del_key = 1,
     .debug = 1,
+    .override_key_codes = 1,
 };
 KeyboardDevice kdev = {
     .fd = -1,

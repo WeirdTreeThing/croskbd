@@ -18,6 +18,7 @@ typedef struct {
   int handle_tablet_switch;
   int del_key;
   int debug;
+  int override_key_codes;
 } Settings;
 
 typedef struct {
