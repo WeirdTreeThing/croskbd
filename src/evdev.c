@@ -1,8 +1,11 @@
 #include <croskbd.h>
+#include <cros_ec.h>
+#include <ec_commands.h>
 #include <dirent.h>
 #include <errno.h>
 #include <evdev.h>
 #include <fcntl.h>
+#include <linux/input-event-codes.h>
 #include <linux/input.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -119,5 +122,23 @@ void load_kb_layout_data(KeyboardDevice *kdev) {
     kdev->num_top_row_keys = 10;
     int default_top_row[] = {158, 159, 173, 372, 120, 224, 225, 113, 114, 115};
     memcpy(kdev->top_row_keys, default_top_row, sizeof(default_top_row));
+  } else {
+    // Keyboard has vivaldi, get capabilities from ec
+    struct ec_response_keybd_config config = { 0 };
+    int ret = ec_command(kdev->ec_fd, EC_CMD_GET_KEYBD_CONFIG, 0, NULL, 0, &config, sizeof(config));
+    if (ret < 0) {
+      err("Failed to get ec keyboard caps: %d", ret);
+      return;
+    }
+    kdev->kbd_caps = config.capabilities;
+    dbg("Keyboard caps: 0x%x", kdev->kbd_caps);
+    if (kdev->kbd_caps & KEYBD_CAP_FUNCTION_KEYS)
+      dbg("KEYBD_CAP_FUNCTION_KEYS");
+    if (kdev->kbd_caps & KEYBD_CAP_NUMERIC_KEYPAD)
+      dbg("KEYBD_CAP_NUMERIC_KEYPAD");
+    if (kdev->kbd_caps & KEYBD_CAP_SCRNLOCK_KEY)
+      dbg("KEYBD_CAP_SCRNLOCK_KEY");
+    if (kdev->kbd_caps & KEYBD_CAP_ASSISTANT_KEY)
+      dbg("KEYBD_CAP_ASSISTANT_KEY");
   }
 }
