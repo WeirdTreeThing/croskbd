@@ -1,4 +1,3 @@
-
 include toolchain.mk
 
 # Static compilation handler

@@ -92,15 +92,17 @@ int main(int argc, char **argv) {
   parse_config();
 
   int cros_ec_fd = ec_dev_init();
-  struct ec_params_hello params;
-  struct ec_response_hello resp;
-  params.in_data = 0xa0b0c0d0;
-  int ret = ec_command(cros_ec_fd, EC_CMD_HELLO, 0, &params, sizeof(params), &resp, sizeof(resp));
-  if (resp.out_data != 0xa1b2c3d4 || ret < 0) {
-    err("EC communication error. ret=%d, outdata=%x", ret, resp.out_data);
-  } else {
-    dbg("EC returned correct result for hello command");
-    kdev.ec_fd = cros_ec_fd;
+  if (cros_ec_fd > 0) {
+    struct ec_params_hello params;
+    struct ec_response_hello resp;
+    params.in_data = 0xa0b0c0d0;
+    int ret = ec_command(cros_ec_fd, EC_CMD_HELLO, 0, &params, sizeof(params), &resp, sizeof(resp));
+    if (resp.out_data != 0xa1b2c3d4 || ret < 0) {
+      err("EC communication error. ret=%d, outdata=%x", ret, resp.out_data);
+    } else {
+      dbg("EC returned correct result for hello command");
+      kdev.ec_fd = cros_ec_fd;
+    }
   }
 
   input_device dev = {};
