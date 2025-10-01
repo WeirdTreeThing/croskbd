@@ -1,5 +1,7 @@
 #include <config.h>
 #include <croskbd.h>
+#include <cros_ec.h>
+#include <ec_commands.h>
 #include <errno.h>
 #include <evdev.h>
 #include <linux/input.h>
@@ -22,6 +24,8 @@ Settings settings = {
 };
 KeyboardDevice kdev = {
     .fd = -1,
+    .ec_fd = -1,
+    .kbd_caps = 0,
     .has_vivaldi = 0,
     .remaps = {0},
     .num_remaps = 0,
@@ -56,7 +60,10 @@ void input_loop(void) {
   }
 
   // block all keyboard events to other processes
-  ioctl(kdev.fd, EVIOCGRAB);
+  int ret = ioctl(kdev.fd, EVIOCGRAB, 1);
+  if (ret != 0) {
+    err("EVIOCGRAB failed: %d %s", ret, strerror(errno));
+  }
 
   while (1) {
     if (poll(pfds, nfds, -1) < 0) {
@@ -83,6 +90,18 @@ int main(int argc, char **argv) {
   signal(SIGINT, exit);
 
   parse_config();
+
+  int cros_ec_fd = ec_dev_init();
+  struct ec_params_hello params;
+  struct ec_response_hello resp;
+  params.in_data = 0xa0b0c0d0;
+  int ret = ec_command(cros_ec_fd, EC_CMD_HELLO, 0, &params, sizeof(params), &resp, sizeof(resp));
+  if (resp.out_data != 0xa1b2c3d4 || ret < 0) {
+    err("EC communication error. ret=%d, outdata=%x", ret, resp.out_data);
+  } else {
+    dbg("EC returned correct result for hello command");
+    kdev.ec_fd = cros_ec_fd;
+  }
 
   input_device dev = {};
 

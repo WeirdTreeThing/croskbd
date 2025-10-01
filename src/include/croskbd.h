@@ -23,6 +23,8 @@ typedef struct {
 
 typedef struct {
   int fd;
+  int ec_fd;
+  int kbd_caps;
   char ev_name[10];
   int top_row_keys[MAX_TOP_ROW_KEYS];
   int num_top_row_keys;
