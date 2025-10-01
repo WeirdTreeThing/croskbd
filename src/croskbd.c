@@ -1,6 +1,6 @@
 #include <config.h>
-#include <croskbd.h>
 #include <cros_ec.h>
+#include <croskbd.h>
 #include <ec_commands.h>
 #include <errno.h>
 #include <evdev.h>
@@ -16,117 +16,120 @@
 #include <utils.h>
 
 Settings settings = {
-    .invert_top_row = 0,
-    .handle_tablet_switch = 1,
-    .delete_key = 1,
-    .debug = 0,
-    .override_key_codes = 1,
+	.invert_top_row = 0,
+	.handle_tablet_switch = 1,
+	.delete_key = 1,
+	.debug = 0,
+	.override_key_codes = 1,
 };
 KeyboardDevice kdev = {
-    .fd = -1,
-    .ec_fd = -1,
-    .kbd_caps = 0,
-    .has_vivaldi = 0,
-    .remaps = {0},
-    .num_remaps = 0,
+	.fd = -1,
+	.ec_fd = -1,
+	.kbd_caps = 0,
+	.has_vivaldi = 0,
+	.remaps = {0},
+	.num_remaps = 0,
 };
 TabletSwitchDevice tdev = {
-    .fd = -1,
-    .tablet_mode = 0,
+	.fd = -1,
+	.tablet_mode = 0,
 };
 UInputDevice udev = {.fd = -1};
 
 void cleanup() {
-  dbg("Exiting...");
-  close_dev_fds(&kdev, &tdev);
-  uinput_teardown(&udev);
+	dbg("Exiting...");
+	close_dev_fds(&kdev, &tdev);
+	uinput_teardown(&udev);
 }
 
 void input_loop(void) {
-  int nfds = 1;
-  struct pollfd pfds[2];
-  struct input_event kb_ev;
-  struct input_event ts_ev;
+	int nfds = 1;
+	struct pollfd pfds[2];
+	struct input_event kb_ev;
+	struct input_event ts_ev;
 
-  pfds[0].fd = kdev.fd;
-  pfds[0].events = POLLIN;
+	pfds[0].fd = kdev.fd;
+	pfds[0].events = POLLIN;
 
-  if (tdev.fd > 1) {
-    pfds[1].fd = tdev.fd;
-    pfds[1].events = POLLIN;
-    nfds++;
-  } else {
-    warn("Tablet switch device not found, disabling tablet mode switch handling.");
-  }
+	if (tdev.fd > 1) {
+		pfds[1].fd = tdev.fd;
+		pfds[1].events = POLLIN;
+		nfds++;
+	} else {
+		warn("Tablet switch device not found, disabling tablet mode switch "
+			 "handling.");
+	}
 
-  // block all keyboard events to other processes
-  int ret = ioctl(kdev.fd, EVIOCGRAB, 1);
-  if (ret != 0) {
-    err("EVIOCGRAB failed: %d %s", ret, strerror(errno));
-  }
+	// block all keyboard events to other processes
+	int ret = ioctl(kdev.fd, EVIOCGRAB, 1);
+	if (ret != 0) {
+		err("EVIOCGRAB failed: %d %s", ret, strerror(errno));
+	}
 
-  while (1) {
-    if (poll(pfds, nfds, -1) < 0) {
-      err("poll failed: %s", strerror(errno));
-      return;
-    }
-    if (pfds[1].revents) {
-      read(tdev.fd, &ts_ev, sizeof(ts_ev));
-    }
-    if (pfds[0].revents) {
-      int ret = read(kdev.fd, &kb_ev, sizeof(kb_ev));
-      if (ret < 0) {
-        err("read() returned %d bytes", ret);
-        return;
-      }
-      process_key(&kdev, &udev, &kb_ev);
-    }
-  }
+	while (1) {
+		if (poll(pfds, nfds, -1) < 0) {
+			err("poll failed: %s", strerror(errno));
+			return;
+		}
+		if (pfds[1].revents) {
+			read(tdev.fd, &ts_ev, sizeof(ts_ev));
+		}
+		if (pfds[0].revents) {
+			int ret = read(kdev.fd, &kb_ev, sizeof(kb_ev));
+			if (ret < 0) {
+				err("read() returned %d bytes", ret);
+				return;
+			}
+			process_key(&kdev, &udev, &kb_ev);
+		}
+	}
 }
 
 int main(int argc, char **argv) {
-  atexit(cleanup);
-  signal(SIGTERM, exit);
-  signal(SIGINT, exit);
+	atexit(cleanup);
+	signal(SIGTERM, exit);
+	signal(SIGINT, exit);
 
-  parse_config();
+	parse_config();
 
-  int cros_ec_fd = ec_dev_init();
-  if (cros_ec_fd > 0) {
-    struct ec_params_hello params;
-    struct ec_response_hello resp;
-    params.in_data = 0xa0b0c0d0;
-    int ret = ec_command(cros_ec_fd, EC_CMD_HELLO, 0, &params, sizeof(params), &resp, sizeof(resp));
-    if (resp.out_data != 0xa1b2c3d4 || ret < 0) {
-      err("EC communication error. ret=%d, outdata=%x", ret, resp.out_data);
-    } else {
-      dbg("EC returned correct result for hello command");
-      kdev.ec_fd = cros_ec_fd;
-    }
-  }
+	int cros_ec_fd = ec_dev_init();
+	if (cros_ec_fd > 0) {
+		struct ec_params_hello params;
+		struct ec_response_hello resp;
+		params.in_data = 0xa0b0c0d0;
+		int ret = ec_command(cros_ec_fd, EC_CMD_HELLO, 0, &params,
+							 sizeof(params), &resp, sizeof(resp));
+		if (resp.out_data != 0xa1b2c3d4 || ret < 0) {
+			err("EC communication error. ret=%d, outdata=%x", ret,
+				resp.out_data);
+		} else {
+			dbg("EC returned correct result for hello command");
+			kdev.ec_fd = cros_ec_fd;
+		}
+	}
 
-  input_device dev = {};
+	input_device dev = {};
 
-  uinput_init(&udev);
+	uinput_init(&udev);
 
-  if (udev.fd < 0) {
-    err("Failed to create virtual keyboard");
-    return 1;
-  }
+	if (udev.fd < 0) {
+		err("Failed to create virtual keyboard");
+		return 1;
+	}
 
-  while (1) {
-    int ret = get_keyboards(&dev);
+	while (1) {
+		int ret = get_keyboards(&dev);
 
-    if (ret) {
-      kdev.fd = dev.fd;
-      snprintf(kdev.ev_name, sizeof(kdev.ev_name), "%s", dev.event_name);
-      load_kb_layout_data(&kdev);
-      add_remaps(&kdev);
-      input_loop();
-    } else {
-      err("Failed to find keyboard device");
-    }
-  }
+		if (ret) {
+			kdev.fd = dev.fd;
+			snprintf(kdev.ev_name, sizeof(kdev.ev_name), "%s", dev.event_name);
+			load_kb_layout_data(&kdev);
+			add_remaps(&kdev);
+			input_loop();
+		} else {
+			err("Failed to find keyboard device");
+		}
+	}
 
-  return 0;
+	return 0;
 }
