@@ -72,7 +72,7 @@ static void send_mod_key_events(KeyboardDevice *kdev, UInputDevice *udev,
 	if (kdev->remaps[remap].preserve_mod_keys)
 		return;
 	for (int i = 0; i < kdev->remaps[remap].num_mod_keys; i++)
-		uinput_send_event(udev, EV_KEY, kdev->remaps[remap].mod_keys[i], state);
+		uinput_send_event(kdev, udev, EV_KEY, kdev->remaps[remap].mod_keys[i], state);
 }
 
 static int is_modkey(int key) {
@@ -187,7 +187,7 @@ void process_key(KeyboardDevice *kdev, UInputDevice *udev,
 				keycode = kdev->remaps[rep_remap].remap_key;
 			}
 		}
-		uinput_send_event(udev, EV_KEY, keycode, 0);
+		uinput_send_event(kdev, udev, EV_KEY, keycode, 0);
 		if (is_modkey(ev->code))
 			remove_mod_key(ev->code);
 		break;
@@ -196,7 +196,7 @@ void process_key(KeyboardDevice *kdev, UInputDevice *udev,
 			keycode = kdev->remaps[remap].remap_key;
 			send_mod_key_events(kdev, udev, remap, 0);
 		}
-		uinput_send_event(udev, EV_KEY, keycode, 1);
+		uinput_send_event(kdev, udev, EV_KEY, keycode, 1);
 		if (is_modkey(ev->code))
 			add_mod_key(ev->code);
 		break;
@@ -210,14 +210,14 @@ void process_key(KeyboardDevice *kdev, UInputDevice *udev,
 			if (rep_remap != -1)
 				keycode = kdev->remaps[rep_remap].remap_key;
 		}
-		uinput_send_event(udev, EV_KEY, keycode, 2);
+		uinput_send_event(kdev, udev, EV_KEY, keycode, 2);
 		break;
 	default:
 		err("Invalid ev.value");
 		break;
 	}
 
-	uinput_send_event(udev, EV_SYN, SYN_REPORT, 0); // Sync
+	uinput_send_event(kdev, udev, EV_SYN, SYN_REPORT, 0); // Sync
 }
 
 void add_remaps(KeyboardDevice *kdev) {
