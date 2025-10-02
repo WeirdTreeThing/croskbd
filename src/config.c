@@ -78,6 +78,7 @@ void parse_config() {
 	int ret = read(fd, data, size - 1);
 	if (ret < 0) {
 		err("Failed to read config: %s", strerror(errno));
+		close(fd);
 		return;
 	}
 
@@ -137,5 +138,6 @@ void parse_config() {
 			break;
 		}
 	}
+	close(fd);
 	free(data);
 }

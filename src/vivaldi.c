@@ -52,5 +52,7 @@ int load_kb_vivaldi_data(KeyboardDevice *kdev) {
 	}
 	kdev->num_top_row_keys = count;
 
+	close(fd);
+
 	return 1;
 }
