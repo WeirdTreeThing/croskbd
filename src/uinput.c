@@ -31,6 +31,7 @@ void uinput_send_event(KeyboardDevice *kdev, UInputDevice *udev, int type, int c
 				ev.code = KEY_CAPSLOCK;
 			else
 				ev.code = code;
+			break;
 		default:
 			ev.code = code;
 		}
