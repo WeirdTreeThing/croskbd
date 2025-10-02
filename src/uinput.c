@@ -29,6 +29,8 @@ void uinput_send_event(KeyboardDevice *kdev, UInputDevice *udev, int type, int c
 		case KEY_ASSISTANT:
 			if (kdev->kbd_caps & KEYBD_CAP_ASSISTANT_KEY)
 				ev.code = KEY_CAPSLOCK;
+			else
+				ev.code = code;
 		default:
 			ev.code = code;
 		}
