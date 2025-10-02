@@ -83,6 +83,8 @@ static int is_modkey(int key) {
 		return 1;
 	case KEY_LEFTMETA:
 		return 1;
+	case KEY_FN:
+		return 1;
 	default:
 		return 0;
 	}
