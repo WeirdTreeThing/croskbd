@@ -8,6 +8,9 @@
 
 #define MAX_MOD_KEYS 5
 
+// TODO: right mod keys
+#define is_modkey(k) (k == KEY_LEFTCTRL || k == KEY_LEFTALT || k == KEY_LEFTSHIFT || k == KEY_LEFTMETA || k == KEY_FN )
+
 extern Settings settings;
 
 static int mod_key_codes[MAX_MOD_KEYS] = {0};
@@ -87,23 +90,6 @@ static void send_mod_key_events(KeyboardDevice *kdev, UInputDevice *udev,
 	for (int i = 0; i < kdev->remaps[remap].num_mod_keys; i++)
 		uinput_send_event(kdev, udev, EV_KEY, kdev->remaps[remap].mod_keys[i],
 						  state);
-}
-
-static int is_modkey(int key) {
-	switch (key) { // TODO: right mod keys
-	case KEY_LEFTCTRL:
-		return 1;
-	case KEY_LEFTALT:
-		return 1;
-	case KEY_LEFTSHIFT:
-		return 1;
-	case KEY_LEFTMETA:
-		return 1;
-	case KEY_FN:
-		return 1;
-	default:
-		return 0;
-	}
 }
 
 // return 1 on success, 0 on faliure
