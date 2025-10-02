@@ -58,7 +58,7 @@ void uinput_init(UInputDevice *udev) {
 
 	ioctl(fd, UI_SET_EVBIT, EV_REP);
 	ioctl(fd, UI_SET_EVBIT, EV_KEY);
-	for (int code = 0; code < 255; code++) {
+	for (int code = 0; code < 768; code++) {
 		ioctl(fd, UI_SET_KEYBIT, code);
 	}
 
