@@ -1,4 +1,5 @@
 #include <croskbd.h>
+#include <ec_commands.h>
 #include <linux/input-event-codes.h>
 #include <linux/input.h>
 #include <static_remaps.h>
@@ -108,19 +109,42 @@ static int add_remap(KeyboardDevice *kdev, KeyRemap *remap) {
 
 static void generate_top_row_remaps(KeyboardDevice *kdev) {
 	for (int i = 0; i < kdev->num_top_row_keys; i++) {
-		int original_key = KEY_F1 + i;
-		int remap_key = kdev->top_row_keys[i];
+		int original_key;
+		int primary_remap_key;
+		int secondary_remap_key;
 
+		if (settings.invert_top_row) {
+			primary_remap_key = KEY_F1 + i;
+			secondary_remap_key = kdev->top_row_keys[i];
+		} else {
+			primary_remap_key = kdev->top_row_keys[i];
+			secondary_remap_key = KEY_F1 + i;
+		}
 		if (kdev->has_vivaldi)
 			original_key = kdev->top_row_keys[i];
+		else
+			original_key = KEY_F1 + i;
 
-		KeyRemap remap = {
+		int remap_mod_key = KEY_LEFTMETA;
+		if (kdev->kbd_caps & KEYBD_CAP_FUNCTION_KEYS)
+			remap_mod_key = KEY_FN;
+
+		KeyRemap remap_primary = {
 			.original_key = original_key,
-			.remap_key = remap_key,
+			.remap_key = primary_remap_key,
 			.num_mod_keys = 0,
 			.mod_keys = {0},
 		};
-		add_remap(kdev, &remap);
+
+		KeyRemap remap_secondary = {
+			.original_key = original_key,
+			.remap_key = secondary_remap_key,
+			.num_mod_keys = 1,
+			.mod_keys = {remap_mod_key},
+		};
+
+		add_remap(kdev, &remap_primary);
+		add_remap(kdev, &remap_secondary);
 	}
 }
 
