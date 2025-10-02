@@ -27,8 +27,21 @@ static void remove_mod_key(int key) {
 		dbg("Min mod keys reached");
 		return;
 	}
+
+	for (int i = 0; i < mod_keys_pressed; i++) {
+		if (mod_key_codes[i] == key)
+			mod_key_codes[i] = 0;
+		if (i + 1 == MAX_MOD_KEYS)
+			break;
+		if (mod_key_codes[i] == 0 && mod_key_codes[i + 1] != 0) {
+			mod_key_codes[i] = mod_key_codes[i + 1];
+			mod_key_codes[i + 1] = 0;
+		}
+		if (mod_key_codes[i] == 0 && mod_key_codes[i + 1] == 0)
+			break;
+	}
+
 	mod_keys_pressed--;
-	mod_key_codes[mod_keys_pressed] = 0;
 }
 
 static int check_mod_keys(KeyboardDevice *kdev, int remap) {
@@ -72,7 +85,8 @@ static void send_mod_key_events(KeyboardDevice *kdev, UInputDevice *udev,
 	if (kdev->remaps[remap].preserve_mod_keys)
 		return;
 	for (int i = 0; i < kdev->remaps[remap].num_mod_keys; i++)
-		uinput_send_event(kdev, udev, EV_KEY, kdev->remaps[remap].mod_keys[i], state);
+		uinput_send_event(kdev, udev, EV_KEY, kdev->remaps[remap].mod_keys[i],
+						  state);
 }
 
 static int is_modkey(int key) {
