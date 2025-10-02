@@ -1,4 +1,5 @@
 #include <croskbd.h>
+#include <ec_commands.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/input-event-codes.h>
@@ -11,7 +12,7 @@
 
 extern Settings settings;
 
-void uinput_send_event(UInputDevice *udev, int type, int code, int value) {
+void uinput_send_event(KeyboardDevice *kdev, UInputDevice *udev, int type, int code, int value) {
 	struct input_event ev;
 	ev.type = type;
 	ev.value = value;
@@ -25,6 +26,9 @@ void uinput_send_event(UInputDevice *udev, int type, int code, int value) {
 		case KEY_FULL_SCREEN:
 			ev.code = KEY_F11;
 			break;
+		case KEY_ASSISTANT:
+			if (kdev->kbd_caps & KEYBD_CAP_ASSISTANT_KEY)
+				ev.code = KEY_CAPSLOCK;
 		default:
 			ev.code = code;
 		}
