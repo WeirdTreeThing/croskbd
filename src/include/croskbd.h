@@ -10,6 +10,7 @@ typedef struct {
   int remap_key;
   int mod_keys[4];
   int num_mod_keys;
+  int preserve_mod_keys;
   int repeatable;
 } KeyRemap;
 
@@ -19,6 +20,7 @@ typedef struct {
   int delete_key;
   int debug;
   int override_key_codes;
+  int vt_switch_keymaps;
 } Settings;
 
 typedef struct {
