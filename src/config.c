@@ -19,14 +19,14 @@ enum states {
 #define is_whitespace(c) (c == ' ' || c == '\t' || c == '\n')
 #define is_whitespace_excl_nl(c) (c == ' ' || c == '\t')
 
-char buffer[100] = { 0 };
-char config_name[100] = { 0 };
+char buffer[100] = {0};
+char config_name[100] = {0};
 int buffer_pos = 0;
 
 extern Settings settings;
 
 static void push_char(char c) {
-	if (buffer_pos >= sizeof(buffer)-1) {
+	if (buffer_pos >= sizeof(buffer) - 1) {
 		warn("config buffer too full");
 		return;
 	}
@@ -85,56 +85,56 @@ void parse_config() {
 
 	for (int i = 0; i < size; i++) {
 		switch (state) {
-			case STATE_START_NAME:
-				if (!is_whitespace(data[i])) {
-					state = STATE_READ_NAME;
-					push_char(data[i]);
-				}
-				break;
-			case STATE_READ_NAME:
-				if (data[i] == '=') {
-					state = STATE_START_VAL;
-					memcpy(config_name, buffer, sizeof(config_name));
-					clear_buffer();
-				} else if (is_whitespace(data[i])) {
-					state = STATE_AFTER_NAME;
-					memcpy(config_name, buffer, sizeof(config_name));
-					clear_buffer();
-				} else {
-					push_char(data[i]);
-				}
-				break;
-			case STATE_AFTER_NAME:
-				if (data[i] == '=')
-					state = STATE_START_VAL;
-				break;
-			case STATE_START_VAL:
-				if (!is_whitespace(data[i])) {
-					state = STATE_READ_VAL;
-					push_char(data[i]);
-				}
-				break;
-			case STATE_READ_VAL:
-				if (data[i] == '\n') {
-					state = STATE_START_NAME;
-					dbg("config_name=%s value=%s", config_name, buffer);
-					process_config();
-					memset(config_name, 0 , sizeof(config_name));
-					clear_buffer();
-				} else if (is_whitespace_excl_nl(data[i])) {
-					state = STATE_AFTER_VAL;
-					dbg("config_name=%s value=%s", config_name, buffer);
-					process_config();
-					memset(config_name, 0, sizeof(config_name));
-					clear_buffer();
-				} else {
-					push_char(data[i]);
-				}				
-				break;
-			case STATE_AFTER_VAL:
-				if (data[i] == '=')
-					state = STATE_START_NAME;
-				break;
+		case STATE_START_NAME:
+			if (!is_whitespace(data[i])) {
+				state = STATE_READ_NAME;
+				push_char(data[i]);
+			}
+			break;
+		case STATE_READ_NAME:
+			if (data[i] == '=') {
+				state = STATE_START_VAL;
+				memcpy(config_name, buffer, sizeof(config_name));
+				clear_buffer();
+			} else if (is_whitespace(data[i])) {
+				state = STATE_AFTER_NAME;
+				memcpy(config_name, buffer, sizeof(config_name));
+				clear_buffer();
+			} else {
+				push_char(data[i]);
+			}
+			break;
+		case STATE_AFTER_NAME:
+			if (data[i] == '=')
+				state = STATE_START_VAL;
+			break;
+		case STATE_START_VAL:
+			if (!is_whitespace(data[i])) {
+				state = STATE_READ_VAL;
+				push_char(data[i]);
+			}
+			break;
+		case STATE_READ_VAL:
+			if (data[i] == '\n') {
+				state = STATE_START_NAME;
+				dbg("config_name=%s value=%s", config_name, buffer);
+				process_config();
+				memset(config_name, 0, sizeof(config_name));
+				clear_buffer();
+			} else if (is_whitespace_excl_nl(data[i])) {
+				state = STATE_AFTER_VAL;
+				dbg("config_name=%s value=%s", config_name, buffer);
+				process_config();
+				memset(config_name, 0, sizeof(config_name));
+				clear_buffer();
+			} else {
+				push_char(data[i]);
+			}
+			break;
+		case STATE_AFTER_VAL:
+			if (data[i] == '=')
+				state = STATE_START_NAME;
+			break;
 		}
 	}
 	free(data);
