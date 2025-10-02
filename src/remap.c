@@ -7,6 +7,8 @@
 
 #define MAX_MOD_KEYS 5
 
+extern Settings settings;
+
 static int mod_key_codes[MAX_MOD_KEYS] = {0};
 static int mod_keys_pressed = 0;
 
@@ -181,7 +183,9 @@ void process_key(KeyboardDevice *kdev, UInputDevice *udev,
 void add_remaps(KeyboardDevice *kdev) {
 	generate_top_row_remaps(kdev);
 
-	add_remap(kdev, &alt_backspace_remap);
+	if (settings.delete_key)
+		add_remap(kdev, &alt_backspace_remap);
+
 	if (kdev->has_vivaldi) {
 		add_remap(kdev, &ctrl_scale_remap);
 		add_remap(kdev, &alt_bldown_remap);
