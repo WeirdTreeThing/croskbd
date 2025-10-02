@@ -69,6 +69,8 @@ static int repeatable_remap(KeyboardDevice *kdev, int key) {
 
 static void send_mod_key_events(KeyboardDevice *kdev, UInputDevice *udev,
 								int remap, int state) {
+	if (kdev->remaps[remap].preserve_mod_keys)
+		return;
 	for (int i = 0; i < kdev->remaps[remap].num_mod_keys; i++)
 		uinput_send_event(udev, EV_KEY, kdev->remaps[remap].mod_keys[i], state);
 }
@@ -101,6 +103,7 @@ static int add_remap(KeyboardDevice *kdev, KeyRemap *remap) {
 	kdev->remaps[kdev->num_remaps].original_key = remap->original_key;
 	kdev->remaps[kdev->num_remaps].remap_key = remap->remap_key;
 	kdev->remaps[kdev->num_remaps].num_mod_keys = remap->num_mod_keys;
+	kdev->remaps[kdev->num_remaps].preserve_mod_keys = remap->preserve_mod_keys;
 	kdev->remaps[kdev->num_remaps].repeatable = 0;
 	for (int i = 0; i < remap->num_mod_keys; i++) {
 		kdev->remaps[kdev->num_remaps].mod_keys[i] = remap->mod_keys[i];
@@ -144,6 +147,17 @@ static void generate_top_row_remaps(KeyboardDevice *kdev) {
 			.num_mod_keys = 1,
 			.mod_keys = {remap_mod_key},
 		};
+
+		if (settings.vt_switch_keymaps) {
+			KeyRemap remap_vt_switch = {
+				.original_key = original_key,
+				.remap_key = KEY_F1 + i,
+				.num_mod_keys = 2,
+				.mod_keys = {KEY_LEFTCTRL, KEY_LEFTALT},
+				.preserve_mod_keys = 1,
+			};
+			add_remap(kdev, &remap_vt_switch);
+		}
 
 		add_remap(kdev, &remap_primary);
 		add_remap(kdev, &remap_secondary);

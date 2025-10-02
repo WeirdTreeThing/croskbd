@@ -21,6 +21,7 @@ Settings settings = {
 	.delete_key = 1,
 	.debug = 0,
 	.override_key_codes = 1,
+	.vt_switch_keymaps = 1,
 };
 KeyboardDevice kdev = {
 	.fd = -1,
