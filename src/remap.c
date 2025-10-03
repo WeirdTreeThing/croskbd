@@ -18,7 +18,7 @@ static int mod_keys_pressed = 0;
 
 static void add_mod_key(int key) {
 	if (mod_keys_pressed == MAX_MOD_KEYS) {
-		dbg("Max mod keys reached");
+		err("Max mod keys reached");
 		return;
 	}
 	mod_key_codes[mod_keys_pressed] = key;
@@ -27,7 +27,7 @@ static void add_mod_key(int key) {
 
 static void remove_mod_key(int key) {
 	if (mod_keys_pressed == 0) {
-		dbg("Min mod keys reached");
+		err("Min mod keys reached");
 		return;
 	}
 
