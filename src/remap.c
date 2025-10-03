@@ -178,7 +178,7 @@ void process_key(KeyboardDevice *kdev, UInputDevice *udev,
 	switch (ev->value) {
 	case 0:
 		if (remap != -1) {
-			send_mod_key_events(kdev, udev, remap, 0);
+			send_mod_key_events(kdev, udev, remap, 1);
 			keycode = kdev->remaps[remap].remap_key;
 		} else {
 			int rep_remap = repeatable_remap(kdev, ev->code);
