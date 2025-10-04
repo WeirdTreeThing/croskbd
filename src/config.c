@@ -64,7 +64,7 @@ static void process_config() {
 }
 
 void parse_config() {
-	char config[] = "./example.conf";
+	char config[] = "/etc/croskbd.conf";
 	dbg("Reading config");
 	int fd = open(config, O_RDONLY);
 	if (fd < 0) {
