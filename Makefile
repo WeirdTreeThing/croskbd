@@ -3,6 +3,7 @@ SRC_DIR := ./src
 CC ?= cc
 CFLAGS ?= -std=c2x -O2 -Wall -Werror -pedantic -Wno-missing-braces -Wno-unused-result -Wno-overflow
 CPPFLAGS ?= -I$(SRC_DIR)/include
+PREFIX ?= /usr/local
 TARGET := croskbd
 SRCS := $(shell find $(SRC_DIR) -name '*.c')
 OBJS := $(patsubst $(SRC_DIR)/%,$(BUILD_DIR)/%,$(SRCS:.c=.o))
@@ -18,6 +19,10 @@ $(BUILD_DIR):
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	@$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
-.PHONY: clean
+.PHONY: clean install
+
+install:
+	@install -Dm 755 $(BUILD_DIR)/$(TARGET) $(PREFIX)/bin/$(TARGET)
+
 clean:
 	rm -rf $(BUILD_DIR)
