@@ -1,0 +1,4 @@
+type = process
+command = PREFIX/bin/croskbd
+smooth-recovery = true
+depends-on = local.target

@@ -1,0 +1,9 @@
+[Unit]
+Description=Chromebook Keyboard Daemon
+
+[Service]
+Type=simple
+ExecStart=PREFIX/bin/croskbd
+
+[Install]
+WantedBy=multi-user.target
