@@ -122,6 +122,9 @@ int main(int argc, char **argv) {
 		int ret = get_keyboards(&dev);
 
 		if (ret) {
+			// if reattaching the keyboard, the old remaps will still be present
+			memset(kdev.remaps, 0, sizeof(kdev.remaps));
+			kdev.num_remaps = 0;
 			kdev.fd = dev.fd;
 			snprintf(kdev.ev_name, sizeof(kdev.ev_name), "%s", dev.event_name);
 			load_kb_layout_data(&kdev);
