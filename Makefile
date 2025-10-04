@@ -1,7 +1,7 @@
 BUILD_DIR := ./build
 SRC_DIR := ./src
 CC ?= cc
-CFLAGS ?= -std=c2x -O2 -Wall -Werror -pedantic -Wno-missing-braces -Wno-unused-result
+CFLAGS ?= -std=c2x -O2 -Wall -Werror -pedantic -Wno-missing-braces -Wno-unused-result -Wno-overflow
 CPPFLAGS ?= -I$(SRC_DIR)/include
 TARGET := croskbd
 SRCS := $(shell find $(SRC_DIR) -name '*.c')
