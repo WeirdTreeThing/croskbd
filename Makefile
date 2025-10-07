@@ -21,16 +21,16 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 
 .PHONY: clean install install_dinit install_systemd
 
-install:
-	@install -Dm 755 $(BUILD_DIR)/$(TARGET) $(PREFIX)/bin/$(TARGET)
+install: all
+	@install -Dm 755 $(BUILD_DIR)/$(TARGET) $(DESTDIR)$(PREFIX)/bin/$(TARGET)
 
 install_dinit:
 	@sed 's|PREFIX|$(PREFIX)|' ./data/$(TARGET).dinit.in > $(BUILD_DIR)/$(TARGET).dinit
-	@install -Dm644 $(BUILD_DIR)/$(TARGET).dinit $(PREFIX)/lib/dinit.d/$(TARGET)
+	@install -Dm644 $(BUILD_DIR)/$(TARGET).dinit $(DESTDIR)$(PREFIX)/lib/dinit.d/$(TARGET)
 
 install_systemd:
 	@sed 's|PREFIX|$(PREFIX)|' ./data/$(TARGET).systemd.in > $(BUILD_DIR)/$(TARGET).systemd
-	@install -Dm644 $(BUILD_DIR)/$(TARGET).systemd $(PREFIX)/lib/systemd/system/$(TARGET).service
+	@install -Dm644 $(BUILD_DIR)/$(TARGET).systemd $(DESTDIR)$(PREFIX)/lib/systemd/system/$(TARGET).service
 
 clean:
 	rm -rf $(BUILD_DIR)
