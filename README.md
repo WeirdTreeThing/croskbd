@@ -22,6 +22,23 @@ Another issue croskbd aims to solve is tablet mode on 2 in 1 Chromebooks. Someti
 - [x] Config file
 - [ ] Init services
 
+## Installation
+
+### From Source
+
+    git clone https://github.com/WeirdTreeThing/croskbd
+    cd croskbd
+    make
+    make install
+    # For systemd
+    make install_systemd
+    # For dinit
+    make install_dinit
+
+The default install location is `/usr/local/`. You can override this to `/usr` by adding `PREFIX=/usr` to the install commands.
+
+OpenRC service support is coming soon.
+
 ## Comparison to other solution
 ### keyd (with cros-keyboard-map)
 keyd has much more complex remapping support for those who want to take advantage of it, while croskbd is easier to set up and use. keyd also can't disable the keyboard in tablet mode without hacks, and can't disable the touchpad at all.
