@@ -1,0 +1,11 @@
+Source: croskbd
+Section: devel
+Priority: optional
+Maintainer: ading2210 <allen@ading.dev>
+Build-Depends: build-essential, debhelper (>= 10)
+
+Package: croskbd
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Homepage: https://github.com/WeirdTreeThing/croskbd
+Description: Chromebook Keyboard Daemon 

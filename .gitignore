@@ -1,1 +1,15 @@
 build/
+
+debian/croskbd
+debian/files
+
+debhelper-build-stamp
+*.debhelper
+*.deb
+*.dsc
+*.build
+*.buildinfo
+*.changes
+*.tar.gz
+*.log
+*.substvars

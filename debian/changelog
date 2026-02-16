@@ -1,0 +1,5 @@
+croskbd (0.1.1+nmu1) UNRELEASED; urgency=medium
+
+  * Initial packaging work with dpkg-buildpackage.
+
+ -- ading2210 <allen@ading.dev>  Sun, 15 Feb 2026 16:36:42 -0800
