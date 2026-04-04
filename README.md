@@ -45,3 +45,6 @@ keyd has much more complex remapping support for those who want to take advantag
 
 ### Chromebook xkb keyboard model
 The xkb model works OOTB in many setups, except for gnome wayland for some reason. However, it does not work very well. It assumes you have the classic Chromebook layout, which is not true for anything released in the last 3 years, or any special cases. It does not remap every top row key, such as the task switcher button. It does not allow you to use a mod key to get regular fn keys back. And it does not work on devices with a vivaldi keyboard.
+
+# Woke?
+This software is woke.
