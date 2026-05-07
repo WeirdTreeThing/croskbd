@@ -16,7 +16,7 @@ $(BUILD_DIR)/$(TARGET): $(BUILD_DIR) $(OBJS)
 $(BUILD_DIR):
 	@mkdir $(BUILD_DIR)
 
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c $(SRC_DIR)/include/*.h
 	@$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 .PHONY: clean install install_dinit install_systemd
