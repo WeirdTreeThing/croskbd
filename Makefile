@@ -1,7 +1,7 @@
 BUILD_DIR := ./build
 SRC_DIR := ./src
 CC ?= cc
-CFLAGS ?= -std=c2x -O2 -Wall -Werror -pedantic -Wno-missing-braces -Wno-unused-result -Wno-overflow
+CFLAGS ?= -std=c2x -O2 -Wall -Werror -pedantic -Wno-missing-braces -Wno-unused-result -Wno-overflow -Wno-incompatible-pointer-types-discards-qualifiers
 CPPFLAGS += -I$(SRC_DIR)/include
 PREFIX ?= /usr/local
 TARGET := croskbd

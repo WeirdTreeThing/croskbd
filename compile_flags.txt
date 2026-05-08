@@ -1,2 +1,11 @@
 -I
 src/include
+-std=c2x
+-O2
+-Wall
+-Werror
+-pedantic
+-Wno-missing-braces
+-Wno-unused-result
+-Wno-overflow
+-Wno-incompatible-pointer-types-discards-qualifiers
