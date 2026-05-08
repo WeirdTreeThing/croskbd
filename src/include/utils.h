@@ -21,4 +21,6 @@ void log_msg(LOG_LEVEL level, const char * fmt, ...);
 #define warn(...) log_msg(LOG_WARN, __VA_ARGS__)
 #define err(...) log_msg(LOG_ERROR, __VA_ARGS__)
 
+char *read_to_string(const char *path);
+
 #endif

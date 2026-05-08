@@ -1,15 +1,28 @@
 #include <croskbd.h>
 #include <ec_commands.h>
+#include <fcntl.h>
 #include <linux/input-event-codes.h>
 #include <linux/input.h>
+#include <pixel_remaps.h>
 #include <static_remaps.h>
+#include <stdlib.h>
+#include <string.h>
 #include <uinput.h>
+#include <unistd.h>
 #include <utils.h>
 
-#define MAX_MOD_KEYS 5
+#define MAX_MOD_KEYS 10
 
-// TODO: right mod keys
-#define is_modkey(k) (k == KEY_LEFTCTRL || k == KEY_LEFTALT || k == KEY_LEFTSHIFT || k == KEY_LEFTMETA || k == KEY_FN )
+#define is_modkey(k) (k == KEY_LEFTCTRL || \
+k == KEY_LEFTALT || \
+k == KEY_LEFTSHIFT || \
+k == KEY_LEFTMETA || \
+k == KEY_RIGHTCTRL || \
+k == KEY_RIGHTALT || \
+k == KEY_RIGHTSHIFT || \
+k == KEY_RIGHTMETA || \
+k == KEY_FN || \
+k == KEY_EVE_ASSISTANT )
 
 extern Settings settings;
 
@@ -109,6 +122,17 @@ static int add_remap(KeyboardDevice *kdev, KeyRemap *remap) {
 		kdev->remaps[kdev->num_remaps].mod_keys[i] = remap->mod_keys[i];
 	}
 	kdev->num_remaps++;
+	return 1;
+}
+
+static int add_remap_array(KeyboardDevice *kdev, KeyRemap remaps[]) {
+	int ret;
+	for (; remaps->original_key; remaps++) {
+		ret = add_remap(kdev, remaps);
+		if (!ret)
+			return ret;
+	}
+
 	return 1;
 }
 
@@ -221,11 +245,43 @@ void process_key(KeyboardDevice *kdev, UInputDevice *udev,
 }
 
 void add_remaps(KeyboardDevice *kdev) {
-	generate_top_row_remaps(kdev);
+	char *pn = read_to_string("/sys/class/dmi/id/product_name");
+	if (pn != NULL) {
+		// clean up string
+		for (int i = 0; i < strlen(pn); i++)
+			if (pn[i] == '\n')
+				pn[i] = 0;
+
+		if (!strcmp("Eve", pn)) {
+			warn("Eve");
+			// Add vt switch and move this to a function
+			if (settings.invert_top_row)
+				add_remap_array(kdev, pixel_top_row_inverted);
+			else
+				add_remap_array(kdev, pixel_top_row);
+			add_remap_array(kdev, pixel_misc_remaps);
+		} else if (!strcmp("Atlas", pn)) {
+			warn("Atlas");
+		} else if (!strcmp("Nocturne", pn)) {
+			warn("Nocturne");
+		} else if (!strcmp("Drallion", pn)) {
+			warn("Drallion");
+		} else if (!strcmp("Sarien", pn)) {
+			warn("Sarien");
+		} else if (!strcmp("Arcada", pn)) {
+			warn("Arcada");
+		} else {
+			generate_top_row_remaps(kdev);
+			add_remap_array(kdev, pixel_misc_remaps);
+		}
+
+		free(pn);
+	}
 
 	if (settings.delete_key)
 		add_remap(kdev, &alt_backspace_remap);
 
+	// Convert these to a remap array
 	if (kdev->has_vivaldi) {
 		add_remap(kdev, &ctrl_scale_remap);
 		add_remap(kdev, &alt_bldown_remap);
