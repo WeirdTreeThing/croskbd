@@ -251,6 +251,7 @@ void pixel_remap_config(KeyboardDevice *kdev) {
 	ke.scancode[0] = 0xd8;
 	ke.len = 1;
 	ke.keycode = KEY_ASSISTANT;
+	ke.flags = 0;
 
 	ret = ioctl(kdev->fd, EVIOCSKEYCODE_V2, &ke);
 	if (ret < 0)
