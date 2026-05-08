@@ -8,4 +8,3 @@ src/include
 -Wno-missing-braces
 -Wno-unused-result
 -Wno-overflow
--Wno-incompatible-pointer-types-discards-qualifiers
