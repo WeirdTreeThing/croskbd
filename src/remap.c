@@ -22,7 +22,7 @@ k == KEY_RIGHTALT || \
 k == KEY_RIGHTSHIFT || \
 k == KEY_RIGHTMETA || \
 k == KEY_FN || \
-k == KEY_EVE_ASSISTANT )
+k == KEY_ASSISTANT )
 
 extern Settings settings;
 
@@ -244,6 +244,29 @@ void process_key(KeyboardDevice *kdev, UInputDevice *udev,
 	uinput_send_event(kdev, udev, EV_SYN, SYN_REPORT, 0); // Sync
 }
 
+void pixel_remap_config(KeyboardDevice *kdev) {
+	// Assign KEY_ASSISTANT to the scancode 0xd8
+	int ret;
+	struct input_keymap_entry ke;
+	ke.scancode[0] = 0xd8;
+	ke.len = 1;
+	ke.keycode = KEY_ASSISTANT;
+
+	ret = ioctl(kdev->fd, EVIOCSKEYCODE_V2, &ke);
+	if (ret < 0)
+		err("EVIOCSKEYCODE_V2 failed: %s", strerror(ret));
+
+	// Add vt switch
+	if (settings.invert_top_row)
+		add_remap_array(kdev, pixel_top_row_inverted);
+	else
+		add_remap_array(kdev, pixel_top_row);
+	add_remap_array(kdev, pixel_misc_remaps);
+}
+
+void dell_remap_config();
+void generic_remap_config();
+
 void add_remaps(KeyboardDevice *kdev) {
 	char *pn = read_to_string("/sys/class/dmi/id/product_name");
 	if (pn != NULL) {
@@ -254,12 +277,7 @@ void add_remaps(KeyboardDevice *kdev) {
 
 		if (!strcmp("Eve", pn)) {
 			warn("Eve");
-			// Add vt switch and move this to a function
-			if (settings.invert_top_row)
-				add_remap_array(kdev, pixel_top_row_inverted);
-			else
-				add_remap_array(kdev, pixel_top_row);
-			add_remap_array(kdev, pixel_misc_remaps);
+			pixel_remap_config(kdev);
 		} else if (!strcmp("Atlas", pn)) {
 			warn("Atlas");
 		} else if (!strcmp("Nocturne", pn)) {

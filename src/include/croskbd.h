@@ -5,9 +5,6 @@
 #define MAX_TOP_ROW_KEYS 15
 #define MAX_REMAPS 60 // adjust if needed
 
-// Not defined in the linux event header
-#define KEY_EVE_ASSISTANT 0xd8
-
 typedef struct {
   int original_key;
   int remap_key;
