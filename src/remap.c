@@ -188,6 +188,9 @@ static void generate_top_row_remaps(KeyboardDevice *kdev) {
 	}
 }
 
+
+// TODO FIX: Top row remaps will "revert" when "default" state doesnt match native hw state and any mod key is pressed
+// Does this really matter?
 void process_key(KeyboardDevice *kdev, UInputDevice *udev,
 				 struct input_event *ev) {
 	// original keycode will always live in ev
@@ -257,7 +260,7 @@ void pixel_remap_config(KeyboardDevice *kdev) {
 	if (ret < 0)
 		err("EVIOCSKEYCODE_V2 failed: %s", strerror(ret));
 
-	// Add vt switch
+	// TODO Add vt switch
 	if (settings.invert_top_row)
 		add_remap_array(kdev, pixel_top_row_inverted);
 	else
@@ -266,7 +269,24 @@ void pixel_remap_config(KeyboardDevice *kdev) {
 }
 
 void dell_remap_config();
-void generic_remap_config();
+
+void generic_remap_config(KeyboardDevice *kdev) {
+	generate_top_row_remaps(kdev);
+
+	if (settings.delete_key)
+		add_remap(kdev, &alt_backspace_remap);
+
+	// TODO Convert these to a remap array
+	if (kdev->has_vivaldi) {
+		add_remap(kdev, &ctrl_scale_remap);
+		add_remap(kdev, &alt_bldown_remap);
+		add_remap(kdev, &alt_blup_remap);
+	} else {
+		add_remap(kdev, &ctrl_f5_remap);
+		add_remap(kdev, &alt_f6_remap);
+		add_remap(kdev, &alt_f7_remap);
+	}
+}
 
 void add_remaps(KeyboardDevice *kdev) {
 	char *pn = read_to_string("/sys/class/dmi/id/product_name");
@@ -281,8 +301,10 @@ void add_remaps(KeyboardDevice *kdev) {
 			pixel_remap_config(kdev);
 		} else if (!strcmp("Atlas", pn)) {
 			warn("Atlas");
+			pixel_remap_config(kdev);
 		} else if (!strcmp("Nocturne", pn)) {
 			warn("Nocturne");
+			pixel_remap_config(kdev);
 		} else if (!strcmp("Drallion", pn)) {
 			warn("Drallion");
 		} else if (!strcmp("Sarien", pn)) {
@@ -290,24 +312,11 @@ void add_remaps(KeyboardDevice *kdev) {
 		} else if (!strcmp("Arcada", pn)) {
 			warn("Arcada");
 		} else {
-			generate_top_row_remaps(kdev);
-			add_remap_array(kdev, pixel_misc_remaps);
+			generic_remap_config(kdev);
 		}
 
 		free(pn);
-	}
-
-	if (settings.delete_key)
-		add_remap(kdev, &alt_backspace_remap);
-
-	// Convert these to a remap array
-	if (kdev->has_vivaldi) {
-		add_remap(kdev, &ctrl_scale_remap);
-		add_remap(kdev, &alt_bldown_remap);
-		add_remap(kdev, &alt_blup_remap);
 	} else {
-		add_remap(kdev, &ctrl_f5_remap);
-		add_remap(kdev, &alt_f6_remap);
-		add_remap(kdev, &alt_f7_remap);
+		generic_remap_config(kdev);
 	}
 }
