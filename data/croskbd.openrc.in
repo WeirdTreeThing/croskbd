@@ -1,0 +1,5 @@
+#!/sbin/openrc-run
+supervisor=supervise-daemon
+name="croskbd"
+description="Chromebook Keyboard Daemon"
+command=PREFIX/bin/croskbd

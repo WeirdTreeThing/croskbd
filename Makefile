@@ -32,5 +32,9 @@ install_systemd:
 	@sed 's|PREFIX|$(PREFIX)|' ./data/$(TARGET).systemd.in > $(BUILD_DIR)/$(TARGET).systemd
 	@install -Dm644 $(BUILD_DIR)/$(TARGET).systemd $(DESTDIR)$(PREFIX)/lib/systemd/system/$(TARGET).service
 
+install_openrc:
+	@sed 's|PREFIX|$(PREFIX)|' ./data/$(TARGET).openrc.in > $(BUILD_DIR)/$(TARGET).openrc
+	@install -Dm755 $(BUILD_DIR)/$(TARGET).openrc $(DESTDIR)/etc/init.d/$(TARGET)
+
 clean:
 	rm -rf $(BUILD_DIR)
